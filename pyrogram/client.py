@@ -848,6 +848,12 @@ class Client(Methods):
                         except Exception as e:
                             print(e)
 
+    def is_excluded(self, exclude, module):
+        for e in exclude:
+            if module == e or module.startswith(e + '.'):
+                return True
+        return False
+
     def load_plugins(self):
         if self.plugins:
             plugins = self.plugins.copy()
@@ -952,7 +958,7 @@ class Client(Methods):
             else:
                 for path, handlers in include:
                     module_path = root.replace("/", ".") + "." + path
-                    if module_path in exclude_plugins:
+                    if self.is_excluded(exclude_plugins, module_path):
                         log.warning(
                             '[%s] [LOAD] Ignoring namespace "%s"', self.name, module_path
                         )
