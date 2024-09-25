@@ -49,15 +49,6 @@ CREATE TABLE peers
     last_update_on INTEGER NOT NULL DEFAULT (CAST(STRFTIME('%s', 'now') AS INTEGER))
 );
 
-CREATE TABLE update_state
-(
-    id   INTEGER PRIMARY KEY,
-    pts  INTEGER,
-    qts  INTEGER,
-    date INTEGER,
-    seq  INTEGER
-);
-
 CREATE TABLE version
 (
     number INTEGER PRIMARY KEY
@@ -166,31 +157,6 @@ class SQLiteStorage(Storage):
             "REPLACE INTO usernames (peer_id, id)"
             "VALUES (?, ?)",
             usernames
-        )
-
-    async def update_state(self, value: Tuple[int, int, int, int, int] = object):
-        if value == object:
-            return self.conn.execute(
-                "SELECT id, pts, qts, date, seq FROM update_state"
-            ).fetchall()
-        else:
-            with self.conn:
-                if isinstance(value, int):
-                    self.conn.execute(
-                        "DELETE FROM update_state WHERE id = ?",
-                        (value,)
-                    )
-                else:
-                    self.conn.execute(
-                        "REPLACE INTO update_state (id, pts, qts, date, seq)"
-                        "VALUES (?, ?, ?, ?, ?)",
-                        value
-                    )
-
-    async def remove_state(self, chat_id):
-        self.conn.execute(
-            "DELETE FROM update_state WHERE id = ?",
-            (chat_id,)
         )
 
     async def get_peer_by_id(self, peer_id: int):
