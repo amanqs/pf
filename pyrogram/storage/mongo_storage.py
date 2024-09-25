@@ -120,27 +120,6 @@ class MongoStorage(Storage):
         except Exception as _:
             return
 
-    async def update_peers(self, peers: List[Tuple[int, int, str, str, str]]):
-        """(id, access_hash, type, username, phone_number)"""
-        s = int(time.time())
-        bulk = [
-            UpdateOne(
-                {'_id': i[0]},
-                {'$set': {
-                    'access_hash': i[1], 
-                    'type': i[2], 
-                    'username': i[3], 
-                    'phone_number': i[4],
-                    'last_update_on': s
-                }},
-                upsert=True
-            ) for i in peers
-        ]
-        if not bulk:
-            return
-        await self._peer.bulk_write(
-            bulk
-        )
 
     async def update_usernames(self, usernames: List[Tuple[int, str]]):
         s = int(time.time())
